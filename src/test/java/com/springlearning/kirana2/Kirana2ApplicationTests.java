@@ -1,0 +1,13 @@
+package com.springlearning.kirana2;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class Kirana2ApplicationTests {
+
+    @Test
+    void contextLoads() {
+    }
+
+}
