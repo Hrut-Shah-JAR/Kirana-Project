@@ -2,6 +2,7 @@ package com.kiranastore.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import lombok.Getter;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +24,8 @@ public class ApiExceptionHandler {
             HttpServletRequest request
     ) {
         List<FieldViolation> violations = new ArrayList<>();
-//        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
-//            violations.add(new FieldViolation(fieldError.getField(), fieldError.getDefaultMessage()));
-//        }
+
+        //Converted for loop to for-each loop
         ex.getBindingResult().getFieldErrors().forEach(fieldError ->
                 violations.add(new FieldViolation(fieldError.getField(), fieldError.getDefaultMessage()))
         );
@@ -74,6 +74,7 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
+    @Getter
     public static class ErrorResponse {
         private final LocalDateTime timestamp;
         private final int status;
@@ -87,23 +88,9 @@ public class ApiExceptionHandler {
             this.path = path;
         }
 
-        public LocalDateTime getTimestamp() {
-            return timestamp;
-        }
-
-        public int getStatus() {
-            return status;
-        }
-
-        public String getError() {
-            return error;
-        }
-
-        public String getPath() {
-            return path;
-        }
     }
 
+    @Getter
     public static class ValidationErrorResponse extends ErrorResponse {
         private final List<FieldViolation> fieldErrors;
 
@@ -113,11 +100,9 @@ public class ApiExceptionHandler {
             this.fieldErrors = fieldErrors;
         }
 
-        public List<FieldViolation> getFieldErrors() {
-            return fieldErrors;
-        }
     }
 
+    @Getter
     public static class FieldViolation {
         private final String field;
         private final String message;
@@ -127,12 +112,5 @@ public class ApiExceptionHandler {
             this.message = message;
         }
 
-        public String getField() {
-            return field;
-        }
-
-        public String getMessage() {
-            return message;
-        }
     }
 }

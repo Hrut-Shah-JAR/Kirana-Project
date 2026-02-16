@@ -10,6 +10,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,19 +21,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping ("/v1/api/users")
 public class UserController {
 
-    @Autowired
     private final UserService userService;
 
+    @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @GetMapping(
             value = "",
+            params = "!userId",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @PreAuthorize("hasRole('MANAGER')")
@@ -42,13 +48,29 @@ public class UserController {
     }
 
     @GetMapping(
-            value = "/details",
+            value = "",
+            params = "userId",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @PreAuthorize("hasRole('MANAGER') or #userId == authentication.name")
     public UserResponse getUser(@RequestParam String userId) {
         return userService.getUser(userId);
     }
+
+
+//    @PreAuthorize("hasRole('CUSTOMER')")
+//    @GetMapping(
+//            value = "/details/get",
+//            produces = MediaType.APPLICATION_JSON_VALUE
+//    )
+//    public UserResponse getUser() {
+//        String userId = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+//                .map(authentication -> (UserDetails) authentication.getPrincipal())
+//                .map(UserDetails::getUsername)
+//                .orElse(null);
+//        // validation if userId is null -> throw exception
+//        return userService.getUser(userId);
+//    }
 
     @PostMapping(
             value = "",

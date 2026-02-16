@@ -6,6 +6,7 @@ import com.kiranastore.entity.enums.TransactionStatus;
 import com.kiranastore.entity.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.Getter;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -40,8 +41,9 @@ public class Transaction {
     private TransactionStatus transactionStatus;
 
 
-//    Use Data from Java instead of LocalDateTime
+    //    Use Data from Java instead of LocalDateTime
     @Column(name = "created_at", nullable = false)
+    //    @CreatedDate
     private LocalDateTime creationDate;
     @PrePersist
     void onCreate() {

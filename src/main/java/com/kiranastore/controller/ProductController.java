@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/api/products")
 public class ProductController {
 
-    @Autowired
     private final ProductService productService;
 
+    @Autowired
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
@@ -32,7 +32,7 @@ public class ProductController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @PreAuthorize("isAuthenticated()")
-    private PageResponseDto<ProductResponse> getProducts(
+    public PageResponseDto<ProductResponse> getProducts(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
     ) {
@@ -44,8 +44,8 @@ public class ProductController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    @PreAuthorize("hasRole('MANAGER')")
-    private ProductResponse createProduct(@Valid @RequestBody CreateProductRequest request) {
+    @PreAuthorize("hasRole('MANAGER') or hasRole('CASHIER')")
+    public ProductResponse createProduct(@Valid @RequestBody CreateProductRequest request) {
         return productService.createProduct(request);
     }
 

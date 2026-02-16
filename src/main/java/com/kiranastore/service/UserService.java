@@ -16,6 +16,9 @@ import org.springframework.stereotype.Service;
 import com.kiranastore.repository.UserRepository;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
+import java.util.Locale;
+
 
 @Service
 @AllArgsConstructor
@@ -107,7 +110,20 @@ public class UserService {
                         "User not found: " + request.getUsername()
                 ));
 
-        entity.updateBalance(request.getBalance());
+        BigDecimal updatedBalance;
+        String updateType = request.getUpdateType().trim().toLowerCase(Locale.ROOT);
+        if ("credit".equals(updateType)) {
+            updatedBalance = entity.getBalance().add(request.getBalance());
+        } else if ("debit".equals(updateType)) {
+            updatedBalance = entity.getBalance().subtract(request.getBalance());
+        } else {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid updateType. Expected 'credit' or 'debit'."
+            );
+        }
+
+        entity.updateBalance(updatedBalance);
 
         User saved = userRepository.save(entity);
         return toResponse(saved);

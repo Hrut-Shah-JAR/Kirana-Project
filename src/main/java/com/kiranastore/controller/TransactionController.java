@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping ("/v1/api/transactions")
 public class TransactionController {
 
-    @Autowired
     private final TransactionService transactionService;
 
+    @Autowired
     public TransactionController(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
@@ -28,7 +28,7 @@ public class TransactionController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @PreAuthorize("hasAnyRole('CASHIER','MANAGER','CUSTOMER')")
-    private PageResponseDto<TransactionResponse> getTransactions(
+    public PageResponseDto<TransactionResponse> getTransactions(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
     ) {
@@ -41,7 +41,7 @@ public class TransactionController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @PreAuthorize("hasAnyRole('CASHIER','MANAGER')")
-    private TransactionResponse createTransaction(@Valid @RequestBody CreateTransactionRequest request) {
+    public TransactionResponse createTransaction(@Valid @RequestBody CreateTransactionRequest request) {
         return transactionService.createTransaction(request);
     }
 
@@ -50,7 +50,7 @@ public class TransactionController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @PreAuthorize("hasRole('MANAGER')")
-    private TransactionResponse refundTransaction(@RequestParam String transactionId) {
+    public TransactionResponse refundTransaction(@RequestParam String transactionId) {
         return transactionService.refundTransaction(transactionId);
     }
 
@@ -59,7 +59,7 @@ public class TransactionController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @PreAuthorize("hasAnyRole('CASHIER','MANAGER','CUSTOMER')")
-    private PageResponseDto<TransactionItemResponse> getTransactionItems(
+    public PageResponseDto<TransactionItemResponse> getTransactionItems(
             @RequestParam String transactionId,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
