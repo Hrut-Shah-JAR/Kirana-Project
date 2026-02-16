@@ -3,6 +3,8 @@ package com.kiranastore.entity;
 import com.kiranastore.entity.enums.RoleType;
 import jakarta.persistence.*;
 import lombok.Getter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -11,6 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "users")
 @Getter
+@EntityListeners(AuditingEntityListener.class)
 public class User {
 
     /*
@@ -35,13 +38,12 @@ public class User {
     @Column(name = "phone_number", nullable = false, length = 15)
     private String phoneNumber;
 
-    @Column(name = "created_at", updatable = false)
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime creationDate;
+
     @PrePersist
     void onCreate() {
-        if (creationDate == null) {
-            creationDate = LocalDateTime.now();
-        }
         if (balance == null) {
             balance = BigDecimal.ZERO;
         }

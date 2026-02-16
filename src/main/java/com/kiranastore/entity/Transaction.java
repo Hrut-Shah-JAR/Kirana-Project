@@ -7,6 +7,7 @@ import com.kiranastore.entity.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Table (name = "transactions")
+@EntityListeners(AuditingEntityListener.class)
 public class Transaction {
 
     @Id
@@ -41,16 +43,9 @@ public class Transaction {
     private TransactionStatus transactionStatus;
 
 
-    //    Use Data from Java instead of LocalDateTime
-    @Column(name = "created_at", nullable = false)
-    //    @CreatedDate
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime creationDate;
-    @PrePersist
-    void onCreate() {
-        if (creationDate == null) {
-            creationDate = LocalDateTime.now();
-        }
-    }
 
     // The original transaction ID in case of a refund
     @Column(name = "original_transaction_id", length = 36)
