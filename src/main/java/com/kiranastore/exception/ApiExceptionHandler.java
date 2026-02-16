@@ -23,9 +23,12 @@ public class ApiExceptionHandler {
             HttpServletRequest request
     ) {
         List<FieldViolation> violations = new ArrayList<>();
-        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
-            violations.add(new FieldViolation(fieldError.getField(), fieldError.getDefaultMessage()));
-        }
+//        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
+//            violations.add(new FieldViolation(fieldError.getField(), fieldError.getDefaultMessage()));
+//        }
+        ex.getBindingResult().getFieldErrors().forEach(fieldError ->
+                violations.add(new FieldViolation(fieldError.getField(), fieldError.getDefaultMessage()))
+        );
 
         ValidationErrorResponse response = new ValidationErrorResponse(
                 LocalDateTime.now(),
