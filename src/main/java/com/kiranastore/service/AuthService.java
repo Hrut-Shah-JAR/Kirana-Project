@@ -8,6 +8,7 @@ import com.kiranastore.entity.enums.RoleType;
 import com.kiranastore.repository.UserRepository;
 import com.kiranastore.security.JwtService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -71,14 +72,22 @@ public class AuthService {
      */
     public AuthResponse login(AuthLoginRequest request) {
         User user = userRepository.findByUserName(request.getUsername())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.UNAUTHORIZED,
-                        "Invalid username or password"
-                ));
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(user.getId(), request.getPassword())
-        );
+                .orElseThrow(this::invalidCredentials);
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(user.getId(), request.getPassword())
+            );
+        } catch (AuthenticationException ex) {
+            throw invalidCredentials();
+        }
         String token = jwtService.generateToken(user.getId());
         return new AuthResponse(token);
+    }
+
+    private ResponseStatusException invalidCredentials() {
+        return new ResponseStatusException(
+                HttpStatus.UNAUTHORIZED,
+                "Invalid username or password"
+        );
     }
 }
