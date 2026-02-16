@@ -9,10 +9,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+@Setter
+@Getter
 public class CreateTransactionRequest {
 
     @NotBlank
@@ -39,51 +43,4 @@ public class CreateTransactionRequest {
     public CreateTransactionRequest() {
     }
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public TransactionType getTransactionType() {
-        return transactionType;
-    }
-
-    public void setTransactionType(TransactionType transactionType) {
-        this.transactionType = transactionType;
-    }
-
-    public CurrencyType getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(CurrencyType currency) {
-        this.currency = currency;
-    }
-
-    public BigDecimal getAmountPaid() {
-        return amountPaid;
-    }
-
-    public void setAmountPaid(BigDecimal amountPaid) {
-        this.amountPaid = amountPaid;
-    }
-
-    public String getOriginalTransactionId() {
-        return originalTransactionId;
-    }
-
-    public void setOriginalTransactionId(String originalTransactionId) {
-        this.originalTransactionId = originalTransactionId;
-    }
-
-    public List<CreateTransactionItemRequest> getItems() {
-        return items;
-    }
-
-    public void setItems(List<CreateTransactionItemRequest> items) {
-        this.items = items;
-    }
 }

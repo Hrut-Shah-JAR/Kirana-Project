@@ -1,7 +1,10 @@
 package com.kiranastore.dto.response;
 
+import lombok.Getter;
+
 import java.math.BigDecimal;
 
+@Getter
 public class TransactionItemResponse {
 
     private final String transactionItemId;
@@ -21,27 +24,4 @@ public class TransactionItemResponse {
         this.unitPriceAtSale = unitPriceAtSale;
     }
 
-    public String getTransactionItemId() {
-        return transactionItemId;
-    }
-
-    public String getTransactionId() {
-        return transactionId;
-    }
-
-    public String getProductId() {
-        return productId;
-    }
-
-    public String getProductName() {
-        return productName;
-    }
-
-    public BigDecimal getQuantity() {
-        return quantity;
-    }
-
-    public BigDecimal getUnitPriceAtSale() {
-        return unitPriceAtSale;
-    }
 }

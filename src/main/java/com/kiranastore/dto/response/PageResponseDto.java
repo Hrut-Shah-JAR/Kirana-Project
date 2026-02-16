@@ -1,9 +1,11 @@
 package com.kiranastore.dto.response;
 
+import lombok.Getter;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
+@Getter
 public class PageResponseDto<T> {
 
     private final List<T> items;
@@ -37,31 +39,4 @@ public class PageResponseDto<T> {
         );
     }
 
-    public List<T> getItems() {
-        return items;
-    }
-
-    public int getPage() {
-        return page;
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    public long getTotalItems() {
-        return totalItems;
-    }
-
-    public int getTotalPages() {
-        return totalPages;
-    }
-
-    public boolean isHasNext() {
-        return hasNext;
-    }
-
-    public boolean isHasPrevious() {
-        return hasPrevious;
-    }
 }

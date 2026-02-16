@@ -1,7 +1,9 @@
 package com.kiranastore.dto.request;
 
 import jakarta.validation.constraints.Min;
+import lombok.Getter;
 
+@Getter
 public class PageRequestDto {
 
     @Min(0)
@@ -16,14 +18,6 @@ public class PageRequestDto {
     public PageRequestDto(Integer page, Integer size) {
         this.page = page;
         this.size = size;
-    }
-
-    public Integer getPage() {
-        return page;
-    }
-
-    public Integer getSize() {
-        return size;
     }
 
     public int pageOrDefault() {
