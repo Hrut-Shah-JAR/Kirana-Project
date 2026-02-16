@@ -1,8 +1,8 @@
 package com.kiranastore.controller;
 
-import com.kiranastore.dto.AuthLoginRequest;
-import com.kiranastore.dto.AuthRegisterRequest;
-import com.kiranastore.dto.AuthResponse;
+import com.kiranastore.dto.request.AuthLoginRequest;
+import com.kiranastore.dto.request.AuthRegisterRequest;
+import com.kiranastore.dto.response.AuthResponse;
 import com.kiranastore.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

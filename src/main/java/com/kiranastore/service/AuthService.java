@@ -1,8 +1,8 @@
 package com.kiranastore.service;
 
-import com.kiranastore.dto.AuthLoginRequest;
-import com.kiranastore.dto.AuthRegisterRequest;
-import com.kiranastore.dto.AuthResponse;
+import com.kiranastore.dto.request.AuthLoginRequest;
+import com.kiranastore.dto.request.AuthRegisterRequest;
+import com.kiranastore.dto.response.AuthResponse;
 import com.kiranastore.entity.User;
 import com.kiranastore.entity.enums.RoleType;
 import com.kiranastore.repository.UserRepository;

@@ -1,4 +1,4 @@
-package com.kiranastore.dto;
+package com.kiranastore.dto.response;
 
 import java.math.BigDecimal;
 

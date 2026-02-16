@@ -1,11 +1,11 @@
 package com.kiranastore.service;
 
-import com.kiranastore.dto.CreateTransactionItemRequest;
-import com.kiranastore.dto.CreateTransactionRequest;
-import com.kiranastore.dto.PageRequestDto;
-import com.kiranastore.dto.PageResponseDto;
-import com.kiranastore.dto.TransactionItemResponse;
-import com.kiranastore.dto.TransactionResponse;
+import com.kiranastore.dto.request.CreateTransactionItemRequest;
+import com.kiranastore.dto.request.CreateTransactionRequest;
+import com.kiranastore.dto.request.PageRequestDto;
+import com.kiranastore.dto.response.PageResponseDto;
+import com.kiranastore.dto.response.TransactionItemResponse;
+import com.kiranastore.dto.response.TransactionResponse;
 import com.kiranastore.entity.Product;
 import com.kiranastore.entity.Transaction;
 import com.kiranastore.entity.TransactionItem;

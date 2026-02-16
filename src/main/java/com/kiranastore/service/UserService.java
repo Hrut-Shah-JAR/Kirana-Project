@@ -1,11 +1,11 @@
 package com.kiranastore.service;
 
 
-import com.kiranastore.dto.BalanceUpdateRequest;
-import com.kiranastore.dto.CreateUserRequest;
-import com.kiranastore.dto.PageRequestDto;
-import com.kiranastore.dto.PageResponseDto;
-import com.kiranastore.dto.UserResponse;
+import com.kiranastore.dto.request.BalanceUpdateRequest;
+import com.kiranastore.dto.request.CreateUserRequest;
+import com.kiranastore.dto.request.PageRequestDto;
+import com.kiranastore.dto.response.PageResponseDto;
+import com.kiranastore.dto.response.UserResponse;
 import com.kiranastore.entity.User;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;

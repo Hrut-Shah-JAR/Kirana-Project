@@ -1,4 +1,4 @@
-package com.kiranastore.dto;
+package com.kiranastore.dto.request;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;

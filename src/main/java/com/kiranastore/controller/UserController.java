@@ -1,10 +1,10 @@
 package com.kiranastore.controller;
 
-import com.kiranastore.dto.BalanceUpdateRequest;
-import com.kiranastore.dto.CreateUserRequest;
-import com.kiranastore.dto.PageRequestDto;
-import com.kiranastore.dto.PageResponseDto;
-import com.kiranastore.dto.UserResponse;
+import com.kiranastore.dto.request.BalanceUpdateRequest;
+import com.kiranastore.dto.request.CreateUserRequest;
+import com.kiranastore.dto.request.PageRequestDto;
+import com.kiranastore.dto.response.PageResponseDto;
+import com.kiranastore.dto.response.UserResponse;
 import com.kiranastore.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

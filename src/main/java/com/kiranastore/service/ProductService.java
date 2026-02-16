@@ -1,9 +1,9 @@
 package com.kiranastore.service;
 
-import com.kiranastore.dto.CreateProductRequest;
-import com.kiranastore.dto.PageRequestDto;
-import com.kiranastore.dto.PageResponseDto;
-import com.kiranastore.dto.ProductResponse;
+import com.kiranastore.dto.request.CreateProductRequest;
+import com.kiranastore.dto.request.PageRequestDto;
+import com.kiranastore.dto.response.PageResponseDto;
+import com.kiranastore.dto.response.ProductResponse;
 import com.kiranastore.entity.Product;
 import com.kiranastore.repository.ProductRepository;
 import lombok.AllArgsConstructor;

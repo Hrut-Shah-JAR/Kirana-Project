@@ -1,4 +1,4 @@
-package com.kiranastore.dto;
+package com.kiranastore.dto.request;
 
 import com.kiranastore.entity.enums.CurrencyType;
 import com.kiranastore.entity.enums.TransactionType;
