@@ -1,5 +1,6 @@
 package com.kiranastore.controller;
 
+import com.kiranastore.config.ApiMediaTypes;
 import com.kiranastore.dto.request.AuthLoginRequest;
 import com.kiranastore.dto.request.AuthRegisterRequest;
 import com.kiranastore.dto.response.AuthResponse;
@@ -19,25 +20,42 @@ public class AuthController {
 
     private final AuthService authService;
 
+    /**
+     * Creates the auth controller.
+     *
+     * @param authService auth service
+     */
     @Autowired
     public AuthController(AuthService authService) {
         this.authService = authService;
     }
 
+    /**
+     * Registers a new user account and returns an auth token.
+     *
+     * @param request signup request payload
+     * @return auth response containing JWT token
+     */
     @PostMapping(
             value = "/signup",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
+            consumes = {MediaType.APPLICATION_JSON_VALUE, ApiMediaTypes.V1_JSON},
+            produces = {MediaType.APPLICATION_JSON_VALUE, ApiMediaTypes.V1_JSON}
     )
     @PreAuthorize("permitAll()")
     public AuthResponse register(@Valid @RequestBody AuthRegisterRequest request) {
         return authService.register(request);
     }
 
+    /**
+     * Authenticates a user and returns an auth token.
+     *
+     * @param request login request payload
+     * @return auth response containing JWT token
+     */
     @PostMapping(
             value = "/login",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
+            consumes = {MediaType.APPLICATION_JSON_VALUE, ApiMediaTypes.V1_JSON},
+            produces = {MediaType.APPLICATION_JSON_VALUE, ApiMediaTypes.V1_JSON}
     )
     @PreAuthorize("permitAll()")
     public AuthResponse login(@Valid @RequestBody AuthLoginRequest request) {

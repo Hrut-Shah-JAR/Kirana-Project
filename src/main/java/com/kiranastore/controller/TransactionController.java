@@ -1,5 +1,6 @@
 package com.kiranastore.controller;
 
+import com.kiranastore.config.ApiMediaTypes;
 import com.kiranastore.dto.request.CreateTransactionRequest;
 import com.kiranastore.dto.request.PageRequestDto;
 import com.kiranastore.dto.response.PageResponseDto;
@@ -9,8 +10,10 @@ import com.kiranastore.service.TransactionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping ("/v1/api/transactions")
@@ -18,14 +21,26 @@ public class TransactionController {
 
     private final TransactionService transactionService;
 
+    /**
+     * Creates the transaction controller.
+     *
+     * @param transactionService transaction service
+     */
     @Autowired
     public TransactionController(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
 
+    /**
+     * Returns a paged list of transactions.
+     *
+     * @param page page index (0-based), optional
+     * @param size page size, optional
+     * @return paged transaction response
+     */
     @GetMapping(
             value = "",
-            produces = MediaType.APPLICATION_JSON_VALUE
+            produces = {MediaType.APPLICATION_JSON_VALUE, ApiMediaTypes.V1_JSON}
     )
     @PreAuthorize("hasAnyRole('CASHIER','MANAGER','CUSTOMER')")
     public PageResponseDto<TransactionResponse> getTransactions(
@@ -35,32 +50,66 @@ public class TransactionController {
         return transactionService.getTransactions(new PageRequestDto(page, size));
     }
 
+    /**
+     * Creates a transaction and returns the created resource with location header.
+     *
+     * @param request create transaction request payload
+     * @return created transaction response
+     */
     @PostMapping(
             value = "",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
+            consumes = {MediaType.APPLICATION_JSON_VALUE, ApiMediaTypes.V1_JSON},
+            produces = {MediaType.APPLICATION_JSON_VALUE, ApiMediaTypes.V1_JSON}
     )
     @PreAuthorize("hasAnyRole('CASHIER','MANAGER')")
-    public TransactionResponse createTransaction(@Valid @RequestBody CreateTransactionRequest request) {
-        return transactionService.createTransaction(request);
+    public ResponseEntity<TransactionResponse> createTransaction(@Valid @RequestBody CreateTransactionRequest request) {
+        TransactionResponse response = transactionService.createTransaction(request);
+        return ResponseEntity.created(
+                ServletUriComponentsBuilder
+                        .fromCurrentRequest()
+                        .path("/{transactionId}")
+                        .buildAndExpand(response.getTransactionId())
+                        .toUri()
+        ).body(response);
     }
 
+    /**
+     * Creates a refund transaction for the provided transaction id.
+     *
+     * @param transactionId original transaction id
+     * @return created refund transaction response
+     */
     @PostMapping(
-            value = "/refund",
-            produces = MediaType.APPLICATION_JSON_VALUE
+            value = "/{transactionId}/refund",
+            produces = {MediaType.APPLICATION_JSON_VALUE, ApiMediaTypes.V1_JSON}
     )
     @PreAuthorize("hasRole('MANAGER')")
-    public TransactionResponse refundTransaction(@RequestParam String transactionId) {
-        return transactionService.refundTransaction(transactionId);
+    public ResponseEntity<TransactionResponse> refundTransaction(@PathVariable String transactionId) {
+        TransactionResponse response = transactionService.refundTransaction(transactionId);
+        return ResponseEntity.created(
+                ServletUriComponentsBuilder
+                        .fromCurrentRequestUri()
+                        .replacePath("/v1/api/transactions/{transactionId}")
+                        .buildAndExpand(response.getTransactionId())
+                        .toUri()
+        ).body(response);
     }
 
+    /**
+     * Returns paged transaction items for the specified transaction.
+     *
+     * @param transactionId transaction id
+     * @param page page index (0-based), optional
+     * @param size page size, optional
+     * @return paged transaction item response
+     */
     @GetMapping(
-            value = "/items",
-            produces = MediaType.APPLICATION_JSON_VALUE
+            value = "/{transactionId}/items",
+            produces = {MediaType.APPLICATION_JSON_VALUE, ApiMediaTypes.V1_JSON}
     )
     @PreAuthorize("hasAnyRole('CASHIER','MANAGER','CUSTOMER')")
     public PageResponseDto<TransactionItemResponse> getTransactionItems(
-            @RequestParam String transactionId,
+            @PathVariable String transactionId,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
     ) {

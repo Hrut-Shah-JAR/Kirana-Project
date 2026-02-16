@@ -98,16 +98,17 @@ public class UserService {
     }
 
     /**
-     * Updates a user's balance by username.
+     * Updates a user's balance by id.
      *
+     * @param userId user identifier
      * @param request balance update request
      * @return updated user response
      */
-    public UserResponse updateBalance(BalanceUpdateRequest request) {
-        User entity = userRepository.findByUserName(request.getUsername())
+    public UserResponse updateBalance(String userId, BalanceUpdateRequest request) {
+        User entity = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "User not found: " + request.getUsername()
+                        "User not found: " + userId
                 ));
 
         BigDecimal updatedBalance;

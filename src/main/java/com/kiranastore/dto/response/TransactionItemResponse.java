@@ -24,4 +24,12 @@ public class TransactionItemResponse {
         this.unitPriceAtSale = unitPriceAtSale;
     }
 
+    public String getTransactionLink() {
+        return "/v1/api/transactions/" + transactionId;
+    }
+
+    public String getProductLink() {
+        return "/v1/api/products/" + productId;
+    }
+
 }

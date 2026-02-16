@@ -63,4 +63,16 @@ public class TransactionResponse {
     public String getOriginalTransactionId() {
         return originalTransactionId;
     }
+
+    public String getSelfLink() {
+        return "/v1/api/transactions/" + transactionId;
+    }
+
+    public String getItemsLink() {
+        return "/v1/api/transactions/" + transactionId + "/items";
+    }
+
+    public String getRefundLink() {
+        return "/v1/api/transactions/" + transactionId + "/refund";
+    }
 }

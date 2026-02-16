@@ -50,20 +50,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
-        String userId = null;
+        String userId;
         try {
             userId = jwtService.extractUserId(token);
-        } catch (Exception ignored) {
+        } catch (Exception ex) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid JWT token");
+            return;
         }
 
-        if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
-            if (jwtService.isTokenValid(token, userDetails.getUsername())) {
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            try {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
+                if (!jwtService.isTokenValid(token, userDetails.getUsername())) {
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid JWT token");
+                    return;
+                }
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities()
                 );
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (Exception ex) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid JWT token");
+                return;
             }
         }
 

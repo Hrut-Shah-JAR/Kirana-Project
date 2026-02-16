@@ -22,4 +22,8 @@ public class ProductResponse {
         this.quantity = quantity;
     }
 
+    public String getSelfLink() {
+        return "/v1/api/products/" + productId;
+    }
+
 }

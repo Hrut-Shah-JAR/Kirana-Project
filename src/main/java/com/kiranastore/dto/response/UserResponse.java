@@ -47,4 +47,8 @@ public class UserResponse {
     public BigDecimal getBalance() {
         return balance;
     }
+
+    public String getSelfLink() {
+        return "/v1/api/users/" + userId;
+    }
 }
