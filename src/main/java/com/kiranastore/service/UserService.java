@@ -1,13 +1,15 @@
-package com.kiranastore.services;
+package com.kiranastore.service;
 
 
-import com.kiranastore.dtos.BalanceUpdateRequest;
-import com.kiranastore.dtos.CreateUserRequest;
-import com.kiranastore.dtos.UserResponse;
+import com.kiranastore.dto.BalanceUpdateRequest;
+import com.kiranastore.dto.CreateUserRequest;
+import com.kiranastore.dto.PageRequestDto;
+import com.kiranastore.dto.PageResponseDto;
+import com.kiranastore.dto.UserResponse;
 import com.kiranastore.entity.User;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,11 +24,25 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public Page<UserResponse> getUsers(Pageable pageable) {
-        return userRepository.findAll(pageable)
+    /**
+     * Returns a paged list of users.
+     *
+     * @param request paging request
+     * @return page response containing users
+     */
+    public PageResponseDto<UserResponse> getUsers(PageRequestDto request) {
+        Page<UserResponse> page = userRepository
+                .findAll(PageRequest.of(request.pageOrDefault(), request.sizeOrDefault()))
                 .map(this::toResponse);
+        return PageResponseDto.from(page);
     }
 
+    /**
+     * Returns a user by id.
+     *
+     * @param userId user identifier
+     * @return user response
+     */
     public UserResponse getUser(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -36,9 +52,15 @@ public class UserService {
         return toResponse(user);
     }
 
+    /**
+     * Maps a user entity to its response DTO.
+     *
+     * @param entity user entity
+     * @return user response DTO
+     */
     private UserResponse toResponse(User entity) {
         return new UserResponse(
-                entity.getUserId(),
+                entity.getId(),
                 entity.getUserName(),
                 entity.getRole(),
                 entity.getPhoneNumber(),
@@ -47,6 +69,12 @@ public class UserService {
         );
     }
 
+    /**
+     * Creates a user if the username is unique.
+     *
+     * @param request create user request
+     * @return created user response
+     */
     public UserResponse createUser(CreateUserRequest request) {
         if (userRepository.existsByUserName(request.getUsername())) {
             throw new ResponseStatusException(
@@ -66,6 +94,12 @@ public class UserService {
         return toResponse(saved);
     }
 
+    /**
+     * Updates a user's balance by username.
+     *
+     * @param request balance update request
+     * @return updated user response
+     */
     public UserResponse updateBalance(BalanceUpdateRequest request) {
         User entity = userRepository.findByUserName(request.getUsername())
                 .orElseThrow(() -> new ResponseStatusException(

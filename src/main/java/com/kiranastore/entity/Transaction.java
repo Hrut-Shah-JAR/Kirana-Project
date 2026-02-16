@@ -18,7 +18,7 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "transaction_id", nullable = false, length = 36)
-    private String transactionId;
+    private String id;
 
     // Foreign key for UserId
     @Column(name = "user_id", length = 36, nullable = false)
@@ -35,13 +35,12 @@ public class Transaction {
     @Column(name = "amount_paid", precision = 10, scale = 2, nullable = false)
     private BigDecimal amountPaid;
 
-    @Column(name = "amount_paid_inr", precision = 10, scale = 2)
-    private BigDecimal amountPaidInr;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "transaction_status", nullable = false, length = 30)
     private TransactionStatus transactionStatus;
 
+
+//    Use Data from Java instead of LocalDateTime
     @Column(name = "created_at", nullable = false)
     private LocalDateTime creationDate;
     @PrePersist
@@ -59,13 +58,12 @@ public class Transaction {
     }
 
     public Transaction(String userForeignId, TransactionType transactionType, CurrencyType currency,
-                       BigDecimal amountPaid, BigDecimal amountPaidInr, TransactionStatus transactionStatus,
+                       BigDecimal amountPaid, TransactionStatus transactionStatus,
                        String originalTransactionId) {
         this.userForeignId = userForeignId;
         this.transactionType = transactionType;
         this.currency = currency;
         this.amountPaid = amountPaid;
-        this.amountPaidInr = amountPaidInr;
         this.transactionStatus = transactionStatus;
         this.originalTransactionId = originalTransactionId;
     }

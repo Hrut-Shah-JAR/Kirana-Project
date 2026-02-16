@@ -1,7 +1,6 @@
-package com.kiranastore.services;
+package com.kiranastore.service;
 
 import com.kiranastore.entity.enums.CurrencyType;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -15,15 +14,22 @@ public class ExchangeRateService {
 
     private final RestClient restClient;
 
-    public ExchangeRateService(
-            @Value("${fxrates.api.base-url:https://api.fxratesapi.com/latest}") String baseUrl
-    ) {
-        if (baseUrl == null || baseUrl.isBlank()) {
-            throw new IllegalStateException("fxrates.api.base-url is missing or blank");
-        }
-        this.restClient = RestClient.builder().baseUrl(baseUrl).build();
+    /**
+     * Creates the exchange rate service using the configured RestClient bean.
+     *
+     * @param restClient configured exchange rate RestClient
+     */
+    public ExchangeRateService(RestClient restClient) {
+        this.restClient = restClient;
     }
 
+    /**
+     * Converts the given amount from the specified currency to INR.
+     *
+     * @param amount amount in source currency
+     * @param currency source currency
+     * @return amount in INR
+     */
     public BigDecimal convertToInr(BigDecimal amount, CurrencyType currency) {
         if (currency == CurrencyType.INR) {
             return amount.setScale(2, RoundingMode.HALF_UP);
@@ -35,6 +41,14 @@ public class ExchangeRateService {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported currency: " + currency);
     }
 
+
+    /**
+     * Converts the given INR amount to the target currency.
+     *
+     * @param amountInInr amount in INR
+     * @param targetCurrency target currency
+     * @return amount in target currency
+     */
     public BigDecimal convertFromInr(BigDecimal amountInInr, CurrencyType targetCurrency) {
         if (targetCurrency == CurrencyType.INR) {
             return amountInInr.setScale(2, RoundingMode.HALF_UP);
@@ -49,6 +63,11 @@ public class ExchangeRateService {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported currency: " + targetCurrency);
     }
 
+    /**
+     * Fetches the USD to INR rate from the external API.
+     *
+     * @return USD to INR conversion rate
+     */
     private BigDecimal fetchUsdToInrRate() {
         FxRatesResponse response = restClient.get()
                 .uri(uriBuilder -> uriBuilder
@@ -67,10 +86,20 @@ public class ExchangeRateService {
     public static class FxRatesResponse {
         private Rates rates;
 
+        /**
+         * Returns the rates container.
+         *
+         * @return rates
+         */
         public Rates getRates() {
             return rates;
         }
 
+        /**
+         * Sets the rates container.
+         *
+         * @param rates rates container
+         */
         public void setRates(Rates rates) {
             this.rates = rates;
         }
@@ -79,10 +108,20 @@ public class ExchangeRateService {
     public static class Rates {
         private BigDecimal INR;
 
+        /**
+         * Returns the INR rate.
+         *
+         * @return INR rate
+         */
         public BigDecimal getINR() {
             return INR;
         }
 
+        /**
+         * Sets the INR rate.
+         *
+         * @param INR INR rate
+         */
         public void setINR(BigDecimal INR) {
             this.INR = INR;
         }

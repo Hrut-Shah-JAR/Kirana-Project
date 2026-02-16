@@ -20,9 +20,9 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "user_id", nullable = false, length = 36)
-    private String userId;
+    private String id;
 
-    @Column(name = "user_name", nullable = false, unique = true, length = 100)
+    @Column(name = "user_name", nullable = false, length = 100)
     private String userName;
 
     @Enumerated(EnumType.STRING)

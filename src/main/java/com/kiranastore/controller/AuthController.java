@@ -1,9 +1,9 @@
-package com.kiranastore.controllers;
+package com.kiranastore.controller;
 
-import com.kiranastore.dtos.AuthLoginRequest;
-import com.kiranastore.dtos.AuthRegisterRequest;
-import com.kiranastore.dtos.AuthResponse;
-import com.kiranastore.services.AuthService;
+import com.kiranastore.dto.AuthLoginRequest;
+import com.kiranastore.dto.AuthRegisterRequest;
+import com.kiranastore.dto.AuthResponse;
+import com.kiranastore.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/v1/api/auth")
 public class AuthController {
 
     @Autowired

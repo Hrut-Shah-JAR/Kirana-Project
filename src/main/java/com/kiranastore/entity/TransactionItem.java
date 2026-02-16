@@ -14,7 +14,7 @@ public class TransactionItem {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "transaction_item_id", nullable = false, length = 36)
-    private String transactionItemId;
+    private String id;
 
     //Foreign key for transaction ID
     @Column(name = "transaction_id", nullable = false, length = 36)

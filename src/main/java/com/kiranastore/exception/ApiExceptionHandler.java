@@ -1,4 +1,4 @@
-package com.kiranastore.exceptions;
+package com.kiranastore.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;

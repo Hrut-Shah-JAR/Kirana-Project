@@ -1,4 +1,4 @@
-package com.kiranastore.dtos;
+package com.kiranastore.dto;
 
 import com.kiranastore.entity.enums.RoleType;
 

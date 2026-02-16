@@ -1,7 +1,7 @@
 package com.kiranastore.entity.enums;
 
 public enum RoleType {
-    Customer,
-    Cashier,
-    Manager
+    CUSTOMER,
+    CASHIER,
+    MANAGER
 }

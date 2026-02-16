@@ -1,4 +1,4 @@
-package com.kiranastore.dtos;
+package com.kiranastore.dto;
 
 import com.kiranastore.entity.enums.CurrencyType;
 import com.kiranastore.entity.enums.TransactionStatus;
@@ -14,13 +14,12 @@ public class TransactionResponse {
     private final TransactionType transactionType;
     private final CurrencyType currency;
     private final BigDecimal amountPaid;
-    private final BigDecimal amountPaidInr;
     private final TransactionStatus transactionStatus;
     private final LocalDateTime creationDate;
     private final String originalTransactionId;
 
     public TransactionResponse(String transactionId, String userId, TransactionType transactionType,
-                               CurrencyType currency, BigDecimal amountPaid, BigDecimal amountPaidInr,
+                               CurrencyType currency, BigDecimal amountPaid,
                                TransactionStatus transactionStatus, LocalDateTime creationDate,
                                String originalTransactionId) {
         this.transactionId = transactionId;
@@ -28,7 +27,6 @@ public class TransactionResponse {
         this.transactionType = transactionType;
         this.currency = currency;
         this.amountPaid = amountPaid;
-        this.amountPaidInr = amountPaidInr;
         this.transactionStatus = transactionStatus;
         this.creationDate = creationDate;
         this.originalTransactionId = originalTransactionId;
@@ -52,10 +50,6 @@ public class TransactionResponse {
 
     public BigDecimal getAmountPaid() {
         return amountPaid;
-    }
-
-    public BigDecimal getAmountPaidInr() {
-        return amountPaidInr;
     }
 
     public TransactionStatus getTransactionStatus() {

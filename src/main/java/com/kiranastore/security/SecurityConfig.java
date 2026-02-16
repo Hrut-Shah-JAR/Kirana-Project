@@ -15,6 +15,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
+    /**
+     * Configures HTTP security, authorization rules, and JWT filter integration.
+     *
+     * @param http Spring Security HTTP configuration
+     * @param jwtFilter filter that validates JWTs and sets authentication
+     * @return the configured security filter chain
+     * @throws Exception when configuration fails
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter)
             throws Exception {
@@ -22,13 +30,13 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/products").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/products").hasRole("MANAGER")
-                        .requestMatchers("/users/**").hasRole("MANAGER")
-                        .requestMatchers(HttpMethod.POST, "/transactions/*/refund").hasRole("MANAGER")
-                        .requestMatchers(HttpMethod.POST, "/transactions").hasAnyRole("CASHIER", "MANAGER")
-                        .requestMatchers(HttpMethod.GET, "/transactions/**").hasAnyRole("CASHIER", "MANAGER", "CUSTOMER")
+                        .requestMatchers("/v1/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/api/products").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/v1/api/products").hasRole("MANAGER")
+                        .requestMatchers("/v1/api/users/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.POST, "/v1/api/transactions/refund").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.POST, "/v1/api/transactions").hasAnyRole("CASHIER", "MANAGER")
+                        .requestMatchers(HttpMethod.GET, "/v1/api/transactions/**").hasAnyRole("CASHIER", "MANAGER", "CUSTOMER")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
@@ -36,11 +44,23 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Provides the password encoder used for hashing and verification.
+     *
+     * @return BCrypt password encoder
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Exposes the authentication manager from Spring's configuration.
+     *
+     * @param configuration authentication configuration
+     * @return authentication manager
+     * @throws Exception when the manager cannot be obtained
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();

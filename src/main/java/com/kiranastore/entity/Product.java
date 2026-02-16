@@ -14,7 +14,7 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "product_id", nullable = false, length = 36)
-    private String productId;
+    private String id;
 
     @Column(name = "product_name", nullable = false, unique = true, length = 150)
     private String productName;

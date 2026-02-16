@@ -1,9 +1,9 @@
-package com.kiranastore.dtos;
+package com.kiranastore.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public class AuthLoginRequest {
+public class AuthRegisterRequest {
 
     @NotBlank
     @Size(max = 100)
@@ -13,7 +13,11 @@ public class AuthLoginRequest {
     @Size(min = 8, max = 72)
     private String password;
 
-    public AuthLoginRequest() {
+    @NotBlank
+    @Size(max = 15)
+    private String phoneNumber;
+
+    public AuthRegisterRequest() {
     }
 
     public String getUsername() {
@@ -30,5 +34,13 @@ public class AuthLoginRequest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }
