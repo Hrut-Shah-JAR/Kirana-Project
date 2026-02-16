@@ -8,6 +8,7 @@ import com.kiranastore.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,6 +31,7 @@ public class ProductController {
             value = "",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @PreAuthorize("isAuthenticated()")
     private PageResponseDto<ProductResponse> getProducts(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
@@ -42,6 +44,7 @@ public class ProductController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @PreAuthorize("hasRole('MANAGER')")
     private ProductResponse createProduct(@Valid @RequestBody CreateProductRequest request) {
         return productService.createProduct(request);
     }

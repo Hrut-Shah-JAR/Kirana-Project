@@ -9,6 +9,7 @@ import com.kiranastore.service.TransactionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,6 +27,7 @@ public class TransactionController {
             value = "",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @PreAuthorize("hasAnyRole('CASHIER','MANAGER','CUSTOMER')")
     private PageResponseDto<TransactionResponse> getTransactions(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
@@ -38,6 +40,7 @@ public class TransactionController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @PreAuthorize("hasAnyRole('CASHIER','MANAGER')")
     private TransactionResponse createTransaction(@Valid @RequestBody CreateTransactionRequest request) {
         return transactionService.createTransaction(request);
     }
@@ -46,6 +49,7 @@ public class TransactionController {
             value = "/refund",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @PreAuthorize("hasRole('MANAGER')")
     private TransactionResponse refundTransaction(@RequestParam String transactionId) {
         return transactionService.refundTransaction(transactionId);
     }
@@ -54,6 +58,7 @@ public class TransactionController {
             value = "/items",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @PreAuthorize("hasAnyRole('CASHIER','MANAGER','CUSTOMER')")
     private PageResponseDto<TransactionItemResponse> getTransactionItems(
             @RequestParam String transactionId,
             @RequestParam(required = false) Integer page,

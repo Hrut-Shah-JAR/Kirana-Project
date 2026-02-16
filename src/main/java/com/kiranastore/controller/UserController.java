@@ -9,6 +9,7 @@ import com.kiranastore.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,6 +33,7 @@ public class UserController {
             value = "",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @PreAuthorize("hasRole('MANAGER')")
     public PageResponseDto<UserResponse> getUsers(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
@@ -43,6 +45,7 @@ public class UserController {
             value = "/details",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @PreAuthorize("hasRole('MANAGER') or #userId == authentication.name")
     public UserResponse getUser(@RequestParam String userId) {
         return userService.getUser(userId);
     }
@@ -52,6 +55,7 @@ public class UserController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @PreAuthorize("hasRole('MANAGER')")
     public UserResponse createUser(@Valid @RequestBody CreateUserRequest request) {
         return userService.createUser(request);
     }
@@ -61,6 +65,7 @@ public class UserController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @PreAuthorize("hasRole('MANAGER')")
     public UserResponse updateBalance(@Valid @RequestBody BalanceUpdateRequest request) {
         return userService.updateBalance(request);
     }
