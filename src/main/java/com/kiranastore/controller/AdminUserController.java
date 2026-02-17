@@ -23,18 +23,19 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
-@RequestMapping ("/v1/api/users")
-public class UserController {
+@RequestMapping("/v1/api/admin/users")
+@PreAuthorize("hasRole('MANAGER')")
+public class AdminUserController {
 
     private final UserService userService;
 
     /**
-     * Creates the user controller.
+     * Creates the admin user controller.
      *
      * @param userService user service
      */
     @Autowired
-    public UserController(UserService userService) {
+    public AdminUserController(UserService userService) {
         this.userService = userService;
     }
 
@@ -49,7 +50,6 @@ public class UserController {
             value = "",
             produces = {MediaType.APPLICATION_JSON_VALUE, ApiMediaTypes.V1_JSON}
     )
-    @PreAuthorize("hasRole('MANAGER')")
     public PageResponseDto<UserResponse> getUsers(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
@@ -67,7 +67,6 @@ public class UserController {
             value = "/{userId}",
             produces = {MediaType.APPLICATION_JSON_VALUE, ApiMediaTypes.V1_JSON}
     )
-    @PreAuthorize("hasRole('MANAGER') or #userId == authentication.name")
     public UserResponse getUser(@PathVariable String userId) {
         return userService.getUser(userId);
     }
@@ -83,7 +82,6 @@ public class UserController {
             consumes = {MediaType.APPLICATION_JSON_VALUE, ApiMediaTypes.V1_JSON},
             produces = {MediaType.APPLICATION_JSON_VALUE, ApiMediaTypes.V1_JSON}
     )
-    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
         UserResponse response = userService.createUser(request);
         return ResponseEntity.created(
@@ -107,9 +105,7 @@ public class UserController {
             consumes = {MediaType.APPLICATION_JSON_VALUE, ApiMediaTypes.V1_JSON},
             produces = {MediaType.APPLICATION_JSON_VALUE, ApiMediaTypes.V1_JSON}
     )
-    @PreAuthorize("hasRole('MANAGER')")
     public UserResponse updateBalance(@PathVariable String userId, @Valid @RequestBody BalanceUpdateRequest request) {
         return userService.updateBalance(userId, request);
     }
-
 }
