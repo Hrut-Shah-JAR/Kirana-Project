@@ -13,6 +13,10 @@ import com.kiranastore.entity.User;
 import com.kiranastore.entity.enums.CurrencyType;
 import com.kiranastore.entity.enums.TransactionStatus;
 import com.kiranastore.entity.enums.TransactionType;
+import com.kiranastore.exception.BadRequestException;
+import com.kiranastore.exception.ConflictException;
+import com.kiranastore.exception.NotFoundException;
+import com.kiranastore.exception.UnauthorizedException;
 import com.kiranastore.repository.ProductRepository;
 import com.kiranastore.repository.TransactionItemRepository;
 import com.kiranastore.repository.TransactionRepository;
@@ -20,14 +24,11 @@ import com.kiranastore.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 
 @Service
 @AllArgsConstructor
@@ -38,6 +39,7 @@ public class TransactionService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final ExchangeRateService exchangeRateService;
+    private final AuthorizationPolicyService authorizationPolicyService;
 
     /**
      * Returns a paged list of transactions, filtered by user when role is CUSTOMER.
@@ -45,12 +47,14 @@ public class TransactionService {
      * @param request paging request
      * @return page response containing transactions
      */
-    public PageResponseDto<TransactionResponse> getTransactions(PageRequestDto request) {
+    public PageResponseDto<TransactionResponse> getTransactions(PageRequestDto request, String requesterUserId,
+                                                                Collection<String> requesterAuthorities) {
         PageRequest pageRequest = PageRequest.of(request.pageOrDefault(), request.sizeOrDefault());
-        if (hasRole("CUSTOMER")) {
-            User currentUser = getCurrentUser();
+        if (authorizationPolicyService.isCustomer(requesterAuthorities)) {
+            userRepository.findById(requesterUserId)
+                    .orElseThrow(() -> new UnauthorizedException("Authenticated user not found"));
             Page<TransactionResponse> page = transactionRepository
-                    .findByUserForeignId(currentUser.getId(), pageRequest)
+                    .findByUserForeignId(requesterUserId, pageRequest)
                     .map(this::toResponse);
             return PageResponseDto.from(page);
         }
@@ -86,19 +90,13 @@ public class TransactionService {
     @Transactional
     public TransactionResponse createTransaction(CreateTransactionRequest request) {
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "User not found: " + request.getUserId()
-                ));
+                .orElseThrow(() -> new NotFoundException("User not found: " + request.getUserId()));
 
         BigDecimal billAmountInInr = BigDecimal.ZERO;
         CurrencyType currency = request.getCurrency();
         for (CreateTransactionItemRequest item : request.getItems()) {
             Product product = productRepository.findById(item.getProductId())
-                    .orElseThrow(() -> new ResponseStatusException(
-                            HttpStatus.NOT_FOUND,
-                            "Product not found: " + item.getProductId()
-                    ));
+                    .orElseThrow(() -> new NotFoundException("Product not found: " + item.getProductId()));
             billAmountInInr = billAmountInInr.add(product.getPrice().multiply(item.getQuantity()));
         }
 
@@ -118,20 +116,13 @@ public class TransactionService {
 
         request.getItems().forEach(item -> {
             Product product = productRepository.findById(item.getProductId())
-                    .orElseThrow(() -> new ResponseStatusException(
-                            HttpStatus.NOT_FOUND,
-                            "Product not found: " + item.getProductId()
-                    ));
+                    .orElseThrow(() -> new NotFoundException("Product not found: " + item.getProductId()));
             if (item.getQuantity().signum() <= 0) {
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "Invalid quantity for product " + item.getProductId() + ": must be > 0"
-                );
+                throw new BadRequestException("Invalid quantity for product " + item.getProductId() + ": must be > 0");
             }
             if (request.getTransactionType() == TransactionType.SALE &&
                     product.getQuantity().compareTo(item.getQuantity()) < 0) {
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
+                throw new BadRequestException(
                         "Insufficient stock for product " + item.getProductId()
                                 + " (available=" + product.getQuantity()
                                 + ", requested=" + item.getQuantity() + ")"
@@ -165,16 +156,13 @@ public class TransactionService {
     @Transactional
     public TransactionResponse refundTransaction(String originalTransactionId) {
         Transaction original = transactionRepository.findById(originalTransactionId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Transaction not found: " + originalTransactionId
-                ));
+                .orElseThrow(() -> new NotFoundException("Transaction not found: " + originalTransactionId));
 
         if (original.getTransactionType() == TransactionType.REFUND) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot refund a refund transaction");
+            throw new BadRequestException("Cannot refund a refund transaction");
         }
         if (transactionRepository.existsByOriginalTransactionId(original.getId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Transaction already refunded");
+            throw new ConflictException("Transaction already refunded");
         }
 
         Transaction refund = new Transaction(
@@ -189,10 +177,7 @@ public class TransactionService {
 
         for (TransactionItem item : transactionItemRepository.findByTransactionForeignId(original.getId())) {
             Product product = productRepository.findById(item.getProductForeignId())
-                    .orElseThrow(() -> new ResponseStatusException(
-                            HttpStatus.NOT_FOUND,
-                            "Product not found: " + item.getProductForeignId()
-                    ));
+                    .orElseThrow(() -> new NotFoundException("Product not found: " + item.getProductForeignId()));
 
             adjustInventoryForRefund(original.getTransactionType(), product, item.getQuantity());
 
@@ -215,18 +200,19 @@ public class TransactionService {
      * @param request paging request
      * @return page response containing transaction items
      */
-    public PageResponseDto<TransactionItemResponse> getTransactionItems(String transactionId, PageRequestDto request) {
+    public PageResponseDto<TransactionItemResponse> getTransactionItems(
+            String transactionId,
+            PageRequestDto request,
+            String requesterUserId,
+            Collection<String> requesterAuthorities
+    ) {
         Transaction transaction = transactionRepository.findById(transactionId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Transaction not found: " + transactionId
-                ));
-        if (hasRole("CUSTOMER")) {
-            User currentUser = getCurrentUser();
-            if (!transaction.getUserForeignId().equals(currentUser.getId())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
-            }
-        }
+                .orElseThrow(() -> new NotFoundException("Transaction not found: " + transactionId));
+        authorizationPolicyService.assertTransactionAccess(
+                transaction.getUserForeignId(),
+                requesterUserId,
+                requesterAuthorities
+        );
         Page<TransactionItemResponse> page = transactionItemRepository
                 .findByTransactionForeignId(
                         transactionId,
@@ -293,39 +279,5 @@ public class TransactionService {
                 entity.getQuantity(),
                 entity.getUnitPriceAtSale()
         );
-    }
-
-    /**
-     * Checks whether the current authentication has a given role.
-     *
-     * @param role role name without ROLE_ prefix
-     * @return true if the role is present, otherwise false
-     */
-    private boolean hasRole(String role) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getAuthorities() == null) {
-            return false;
-        }
-        String authority = "ROLE_" + role;
-        return authentication.getAuthorities().stream()
-                .anyMatch(granted -> authority.equals(granted.getAuthority()));
-    }
-
-    /**
-     * Returns the currently authenticated user based on the security context.
-     *
-     * @return authenticated user
-     */
-    private User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
-        }
-        String userId = authentication.getName();
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.UNAUTHORIZED,
-                        "Authenticated user not found"
-                ));
     }
 }

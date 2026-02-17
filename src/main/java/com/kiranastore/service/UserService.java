@@ -7,14 +7,14 @@ import com.kiranastore.dto.request.PageRequestDto;
 import com.kiranastore.dto.response.PageResponseDto;
 import com.kiranastore.dto.response.UserResponse;
 import com.kiranastore.entity.User;
+import com.kiranastore.exception.BadRequestException;
+import com.kiranastore.exception.NotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.kiranastore.repository.UserRepository;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.Locale;
@@ -48,10 +48,7 @@ public class UserService {
      */
     public UserResponse getUser(String userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "User not found: " + userId
-                ));
+                .orElseThrow(() -> new NotFoundException("User not found: " + userId));
         return toResponse(user);
     }
 
@@ -73,18 +70,12 @@ public class UserService {
     }
 
     /**
-     * Creates a user if the username is unique.
+     * Creates a user.
      *
      * @param request create user request
      * @return created user response
      */
     public UserResponse createUser(CreateUserRequest request) {
-        if (userRepository.existsByUserName(request.getUsername())) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "User name already exists: " + request.getUsername()
-            );
-        }
         String passwordHash = passwordEncoder.encode(request.getPassword());
         User entity = new User(
                 request.getUsername(),
@@ -106,10 +97,7 @@ public class UserService {
      */
     public UserResponse updateBalance(String userId, BalanceUpdateRequest request) {
         User entity = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "User not found: " + userId
-                ));
+                .orElseThrow(() -> new NotFoundException("User not found: " + userId));
 
         BigDecimal updatedBalance;
         String updateType = request.getUpdateType().trim().toLowerCase(Locale.ROOT);
@@ -118,10 +106,7 @@ public class UserService {
         } else if ("debit".equals(updateType)) {
             updatedBalance = entity.getBalance().subtract(request.getBalance());
         } else {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Invalid updateType. Expected 'credit' or 'debit'."
-            );
+            throw new BadRequestException("Invalid updateType. Expected 'credit' or 'debit'.");
         }
 
         entity.updateBalance(updatedBalance);

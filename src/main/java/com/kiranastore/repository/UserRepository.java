@@ -3,13 +3,9 @@ package com.kiranastore.repository;
 import com.kiranastore.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, String> {
 
-    Optional<User> findByUserName(String userName);
-
-    Optional<User> findById(String id);
-
-    boolean existsByUserName(String userName);
+    List<User> findAllByUserName(String userName);
 }

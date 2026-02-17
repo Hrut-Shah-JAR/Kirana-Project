@@ -5,13 +5,12 @@ import com.kiranastore.dto.request.PageRequestDto;
 import com.kiranastore.dto.response.PageResponseDto;
 import com.kiranastore.dto.response.ProductResponse;
 import com.kiranastore.entity.Product;
+import com.kiranastore.exception.ConflictException;
 import com.kiranastore.repository.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @AllArgsConstructor
@@ -56,10 +55,7 @@ public class ProductService {
      */
     public ProductResponse createProduct(CreateProductRequest request) {
         if (productRepository.existsByProductName(request.getProductName())) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Product name already exists: " + request.getProductName()
-            );
+            throw new ConflictException("Product name already exists: " + request.getProductName());
         }
         Product entity = new Product(
                 request.getProductName(),

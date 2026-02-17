@@ -1,10 +1,10 @@
 package com.kiranastore.service;
 
 import com.kiranastore.entity.enums.CurrencyType;
-import org.springframework.http.HttpStatus;
+import com.kiranastore.exception.BadRequestException;
+import com.kiranastore.exception.UpstreamServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -38,7 +38,7 @@ public class ExchangeRateService {
             BigDecimal rate = fetchUsdToInrRate();
             return amount.multiply(rate).setScale(2, RoundingMode.HALF_UP);
         }
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported currency: " + currency);
+        throw new BadRequestException("Unsupported currency: " + currency);
     }
 
 
@@ -56,11 +56,11 @@ public class ExchangeRateService {
         if (targetCurrency == CurrencyType.USD) {
             BigDecimal rate = fetchUsdToInrRate();
             if (rate.compareTo(BigDecimal.ZERO) == 0) {
-                throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Currency conversion rate unavailable");
+                throw new UpstreamServiceException("Currency conversion rate unavailable");
             }
             return amountInInr.divide(rate, 2, RoundingMode.HALF_UP);
         }
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported currency: " + targetCurrency);
+        throw new BadRequestException("Unsupported currency: " + targetCurrency);
     }
 
     /**
@@ -78,7 +78,7 @@ public class ExchangeRateService {
                 .body(FxRatesResponse.class);
 
         if (response == null || response.getRates() == null || response.getRates().getINR() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Currency conversion rate unavailable");
+            throw new UpstreamServiceException("Currency conversion rate unavailable");
         }
         return response.getRates().getINR();
     }

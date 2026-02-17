@@ -12,8 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping ("/v1/api/transactions")
@@ -44,10 +48,15 @@ public class TransactionController {
     )
     @PreAuthorize("hasAnyRole('CASHIER','MANAGER','CUSTOMER')")
     public PageResponseDto<TransactionResponse> getTransactions(
+            Authentication authentication,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
     ) {
-        return transactionService.getTransactions(new PageRequestDto(page, size));
+        return transactionService.getTransactions(
+                new PageRequestDto(page, size),
+                authentication.getName(),
+                authenticationAuthorities(authentication)
+        );
     }
 
     /**
@@ -109,11 +118,23 @@ public class TransactionController {
     )
     @PreAuthorize("hasAnyRole('CASHIER','MANAGER','CUSTOMER')")
     public PageResponseDto<TransactionItemResponse> getTransactionItems(
+            Authentication authentication,
             @PathVariable String transactionId,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
     ) {
-        return transactionService.getTransactionItems(transactionId, new PageRequestDto(page, size));
+        return transactionService.getTransactionItems(
+                transactionId,
+                new PageRequestDto(page, size),
+                authentication.getName(),
+                authenticationAuthorities(authentication)
+        );
+    }
+
+    private Set<String> authenticationAuthorities(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .collect(Collectors.toSet());
     }
 
 }
